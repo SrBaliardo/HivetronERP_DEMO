@@ -15,7 +15,7 @@ Acesso: usuário **demo**, senha **demo** (pré-preenchidos). As credenciais sã
 
 ## Experiência
 
-Menus, formulários, modais e detalhes usam registros fixos. Salvar e excluir concluem a interação sem mudar os registros. Apontamentos é exibido diretamente. PDFs reais usam o logo Hivetron, fontes incorporadas no renderizador e identificação de demonstração. Campos, filtros locais e seleção podem manter estado em memória durante a navegação. Sessão demonstrativa e preferências visuais podem ser mantidas no navegador; cadastros não são gravados.
+Menus, formulários, modais e detalhes usam registros fixos. Salvar e excluir concluem a interação sem mudar os registros. Apontamentos é exibido diretamente. PDFs reais abrem em uma nova aba, onde o visitante pode baixar pelo visualizador do navegador. Usam o logo horizontal Hivetron, fontes incorporadas no renderizador e identificação de demonstração. Campos, filtros locais e seleção podem manter estado em memória durante a navegação. Sessão demonstrativa e preferências visuais podem ser mantidas no navegador; cadastros não são gravados.
 
 ## Publicar na Vercel
 

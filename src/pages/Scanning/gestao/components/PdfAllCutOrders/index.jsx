@@ -2,12 +2,16 @@ import { Page, Text, View, Document, Image } from '@react-pdf/renderer';
 import { format, isValid, toDate } from 'date-fns';
 import { Fragment } from 'react';
 
-import LogoStar from '../../../../../assets/images/logoHivetron.png';
+import LogoHeader from '../../../../../assets/images/logoHeaderHivetron.png';
+import { CodeBarcode } from '../../../../../components/CodeBarcode';
+import { generateBarcodePath } from '../../../../../utils/generateBarcodePath';
 import { validateProp } from '../../../../../utils/validateProp';
 import { displayStatus } from '../../status';
 import * as S from './styles';
 
 export function ExportPDF_AllCutOrders({ data, filters }) {
+  const barcodePath = generateBarcodePath('DEMO-LISTA-OC');
+
   const formatDisplayDate = (dateString) => {
     const date = dateString ? toDate(new Date(dateString)) : new Date();
     return isValid(date)
@@ -18,12 +22,15 @@ export function ExportPDF_AllCutOrders({ data, filters }) {
   return (
     <Document>
       <Page size="A4" style={S.styles.page}>
-        <Text fixed>
+        <Text fixed style={S.styles.demonstrationNotice}>
           Demonstração — dados fictícios · Nenhuma operação real
         </Text>
         <View style={S.styles.sectionHeader}>
-          <Image src={LogoStar} style={S.styles.image} />
-          <Text style={S.styles.titleHeader}>Ordens de Corte</Text>
+          <Image src={LogoHeader} style={S.styles.image} />
+          <View style={S.styles.headerIntersection}>
+            <Text style={S.styles.titleHeader}>Ordens de Corte</Text>
+            <CodeBarcode barcodePath={barcodePath} />
+          </View>
         </View>
 
         <View style={S.styles.sectionHeader}>

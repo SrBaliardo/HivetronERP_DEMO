@@ -1,15 +1,14 @@
 import { toast } from 'react-toastify';
 
 import { useAppointment } from '../../../../contexts/appointment';
-import { useAsyncAction } from '../../../../hooks/useAsyncAction';
-import { downloadPdf } from '../../../../utils/downloadPdf';
+import { usePdfPreview } from '../../../../hooks/usePdfPreview';
 export function useAppointmentPdf(data, filters) {
   const { isDemonstration } = useAppointment();
-  const action = useAsyncAction();
+  const action = usePdfPreview();
   return {
     pending: action.pending,
     exportPdf: () =>
-      action.run(
+      action.openPdf(
         async () => {
           const [{ pdf }, { ExportPDF_Appointments }] = await Promise.all([
             import('@react-pdf/renderer'),
@@ -22,9 +21,6 @@ export function useAppointmentPdf(data, filters) {
               demonstration={isDemonstration}
             />,
           ).toBlob();
-        },
-        (blob) => {
-          downloadPdf(blob);
         },
         () => toast.error('Erro ao exportar o relatório de apontamentos.'),
       ),

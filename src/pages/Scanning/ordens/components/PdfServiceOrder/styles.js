@@ -1,6 +1,17 @@
 import { StyleSheet } from '@react-pdf/renderer';
 
 export const styles = StyleSheet.create({
+  demonstrationNotice: {
+    fontSize: 9,
+    color: '#6c7883',
+    marginBottom: 12,
+  },
+  headerIntersection: {
+    flexGrow: 1,
+    maxWidth: 340,
+    alignItems: 'flex-end',
+    gap: 6,
+  },
   page: {
     fontFamily: 'Helvetica',
     padding: 30,
@@ -17,14 +28,17 @@ export const styles = StyleSheet.create({
   },
 
   image: {
-    width: '30%',
+    width: 150,
+    height: 42,
+    objectFit: 'contain',
     alignSelf: 'center',
   },
 
   titleHeader: {
-    fontSize: 24,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#6c7883',
+    textAlign: 'right',
   },
 
   titleSection: {
@@ -40,13 +54,6 @@ export const styles = StyleSheet.create({
     color: '#6c7883',
     marginTop: 5,
     marginBottom: 3,
-  },
-
-  headerIntersection: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-end',
-    gap: 3,
   },
 
   blockSection: {

@@ -228,29 +228,105 @@ try {
     });
   };
   const exportPdf = async (label) => {
-    const before = (await readdir(downloadPath)).filter((f) =>
-      f.endsWith('.pdf'),
+    await evaluate(
+      "(()=>{window.__demoPdfBlob=null;if(!window.__demoCreateObjectURL){window.__demoCreateObjectURL=URL.createObjectURL.bind(URL);URL.createObjectURL=(blob)=>{if(blob.type==='application/pdf')window.__demoPdfBlob=blob;return window.__demoCreateObjectURL(blob);};}})()",
+    );
+    const targetsBefore = await (
+      await fetch('http://127.0.0.1:' + port + '/json/list')
+    ).json();
+    const ids = new Set(targetsBefore.map((target) => target.id));
+    const before = (await readdir(downloadPath)).filter((file) =>
+      file.endsWith('.pdf'),
     ).length;
-    await clickText('Exportar');
+    const position = await evaluate(
+      "(()=>{const button=[...document.querySelectorAll('button')].find(e=>e.getClientRects().length&&!e.disabled&&e.innerText.trim()==='Exportar');if(!button)return null;button.scrollIntoView({block:'center'});const rect=button.getBoundingClientRect();return {x:rect.left+rect.width/2,y:rect.top+rect.height/2};})()",
+    );
+    assert(position, 'PDF export control exists');
+    await command('Page.bringToFront');
+    await command('Input.dispatchMouseEvent', {
+      type: 'mousePressed',
+      button: 'left',
+      clickCount: 1,
+      ...position,
+    });
+    await command('Input.dispatchMouseEvent', {
+      type: 'mouseReleased',
+      button: 'left',
+      clickCount: 1,
+      ...position,
+    });
     const end = Date.now() + 30000;
     while (Date.now() < end) {
-      const files = (await readdir(downloadPath)).filter((f) =>
-        f.endsWith('.pdf'),
+      const targets = await (
+        await fetch('http://127.0.0.1:' + port + '/json/list')
+      ).json();
+      const preview = targets.find(
+        (target) =>
+          !ids.has(target.id) &&
+          target.type === 'page' &&
+          target.url.startsWith('blob:'),
       );
-      if (files.length > before) {
-        const file = files.at(-1);
-        assert(
-          (await readFile(path.join(downloadPath, file)))
-            .subarray(0, 5)
-            .toString() === '%PDF-',
+      if (preview) {
+        const encoded = await evaluate(
+          "(async()=>{const blob=window.__demoPdfBlob;if(!blob)throw Error('PDF blob not prepared');return await new Promise(resolve=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result.split(',')[1]);reader.readAsDataURL(blob);});})()",
         );
-        results.push({ case: 'PDF ' + label, status: 'passed', file });
+        const bytes = Buffer.from(encoded, 'base64');
+        assert.equal(bytes.subarray(0, 5).toString(), '%PDF-');
+        assert.equal(
+          downloads.length,
+          0,
+          'Preview does not trigger automatic download',
+        );
+        assert.equal(
+          (await readdir(downloadPath)).filter((file) => file.endsWith('.pdf'))
+            .length,
+          before,
+        );
+        if (label === 'inspecao') {
+          const viewer = new WebSocket(preview.webSocketDebuggerUrl);
+          await new Promise((resolve, reject) => {
+            viewer.onopen = resolve;
+            viewer.onerror = reject;
+          });
+          await pause(1500);
+          const screenshot = await new Promise((resolve, reject) => {
+            viewer.onmessage = ({ data }) => {
+              const result = JSON.parse(data);
+              if (result.id === 1) {
+                if (result.error) reject(Error(result.error.message));
+                else resolve(result.result.data);
+              }
+            };
+            viewer.send(
+              JSON.stringify({
+                id: 1,
+                method: 'Page.captureScreenshot',
+                params: { format: 'png' },
+              }),
+            );
+          });
+          await writeFile(
+            path.join(output, 'pdf-native-viewer.png'),
+            Buffer.from(screenshot, 'base64'),
+          );
+          viewer.close();
+        }
+        const file = 'preview-' + label + '.pdf';
+        await writeFile(path.join(downloadPath, file), bytes);
+        results.push({
+          case: 'PDF ' + label,
+          status: 'passed',
+          file,
+          newTab: true,
+          automaticDownload: false,
+        });
+        await fetch('http://127.0.0.1:' + port + '/json/close/' + preview.id);
         return;
       }
       await pause(150);
     }
     throw Error(
-      'PDF download failed: ' +
+      'PDF preview failed: ' +
         label +
         '\n' +
         (await evaluate('document.body.innerText.slice(-2000)')),

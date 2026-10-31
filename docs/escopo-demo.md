@@ -23,3 +23,11 @@ Validação: build e testes locais autorizados explicitamente pelo usuário em 3
 Não houve publicação em GitHub/Vercel. A instalação Yarn pela rede enfrentou falha de conexão; a validação local utilizou cópia das dependências já instaladas no projeto de origem. O yarn.lock foi preservado. A instalação limpa no provedor ainda precisa ocorrer no primeiro deploy. Os testes cobrem navegação e interações representativas, sem pretender comprovar cada combinação de campos do ERP original. Não há integração de backend na demonstração.
 
 Nenhum arquivo da aplicação original foi editado. Configurações de API, histórico Git, backups e dados reais não foram copiados. Ferramentas de inspeção e artefatos de testes ficam somente em .validation, ignorada pelo Git.
+
+## Ajuste das exportações PDF
+
+Exportar reserva uma aba durante o clique e mostra o PDF nela quando a geração termina. O visitante pode baixar pelo visualizador do navegador. O hook compartilhado usePdfPreview coordena concorrência, cancelamento e erro; o util pdfPreview administra a janela e o tempo de vida do blob. Os cinco hooks de exportação consomem essa coordenação genérica. Nenhuma API ou operação de domínio foi modificada.
+
+Os sete modelos usam logoHeaderHivetron.png fornecido em Pictures/erp, limitado a 150 x 42 pontos, e códigos CODE128 fictícios identificados com DEMO. Título, marca e código possuem espaços separados.
+
+Validação: build aprovado; lint localizado sem erros; 47 verificações com sete novas abas PDF, sem downloads automáticos, erros de execução ou chamadas externas; sete páginas renderizadas e conferidas visualmente.

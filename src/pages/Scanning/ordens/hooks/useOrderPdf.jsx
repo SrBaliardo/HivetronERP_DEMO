@@ -1,12 +1,11 @@
 import { toast } from 'react-toastify';
 
-import { useAsyncAction } from '../../../../hooks/useAsyncAction';
-import { downloadPdf } from '../../../../utils/downloadPdf';
+import { usePdfPreview } from '../../../../hooks/usePdfPreview';
 
 export function useOrderPdf(order, items) {
-  const action = useAsyncAction();
+  const action = usePdfPreview();
   return () =>
-    action.run(
+    action.openPdf(
       async () => {
         const [{ pdf }, { ExportPDF_ServiceOrder }] = await Promise.all([
           import('@react-pdf/renderer'),
@@ -15,9 +14,6 @@ export function useOrderPdf(order, items) {
         return pdf(
           <ExportPDF_ServiceOrder order={order} orderSequences={items} />,
         ).toBlob();
-      },
-      (blob) => {
-        downloadPdf(blob);
       },
       () => toast.error('Erro ao exportar o ordem de serviço.'),
     );

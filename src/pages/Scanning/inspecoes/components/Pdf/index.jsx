@@ -1,15 +1,14 @@
 import { Page, Text, View, Document, Image } from '@react-pdf/renderer';
 import { format, isValid, toDate } from 'date-fns';
 
-import LogoStar from '../../../../../assets/images/logoHivetron.png';
+import LogoHeader from '../../../../../assets/images/logoHeaderHivetron.png';
 import { CodeBarcode } from '../../../../../components/CodeBarcode';
 import { generateBarcodePath } from '../../../../../utils/generateBarcodePath';
 import { validateProp } from '../../../../../utils/validateProp';
 import * as S from './styles';
 
 export function ExportPDF_Inspections({ inspection, inspectionItems }) {
-  const formId = inspection?.id;
-  const barcodePath = generateBarcodePath(formId);
+  const barcodePath = generateBarcodePath('DEMO-INSP-001');
   const stepStage = inspection?.inspectionStage;
 
   const formatDisplayDate = (dateString) => {
@@ -35,11 +34,11 @@ export function ExportPDF_Inspections({ inspection, inspectionItems }) {
   return (
     <Document>
       <Page size="A4" style={S.styles.page}>
-        <Text fixed>
+        <Text fixed style={S.styles.demonstrationNotice}>
           Demonstração — dados fictícios · Nenhuma operação real
         </Text>
         <View style={S.styles.sectionHeader}>
-          <Image src={LogoStar} style={S.styles.image} />
+          <Image src={LogoHeader} style={S.styles.image} />
           <View style={S.styles.headerIntersection}>
             <Text style={S.styles.titleHeader}>Romaneio de Inspeção</Text>
             <CodeBarcode barcodePath={barcodePath} />

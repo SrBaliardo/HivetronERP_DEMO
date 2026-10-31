@@ -1,8 +1,7 @@
 import { toast } from 'react-toastify';
 
 import { useScanning } from '../../../../contexts/scanning/index.js';
-import { useAsyncAction } from '../../../../hooks/useAsyncAction';
-import { downloadPdf } from '../../../../utils/downloadPdf';
+import { usePdfPreview } from '../../../../hooks/usePdfPreview';
 const documents = {
   service: () => import('../components/PdfAllServiceOrders'),
   cut: () => import('../components/PdfAllCutOrders'),
@@ -15,11 +14,11 @@ const names = {
 };
 export function usePcpPdf(kind, filtered, records, filters) {
   const { pcpExportRows } = useScanning();
-  const action = useAsyncAction();
+  const action = usePdfPreview();
   return {
     pending: action.pending,
     exportPdf: () =>
-      action.run(
+      action.openPdf(
         async () => {
           const [{ pdf }, module] = await Promise.all([
             import('@react-pdf/renderer'),
@@ -32,9 +31,6 @@ export function usePcpPdf(kind, filtered, records, filters) {
               filters={filters}
             />,
           ).toBlob();
-        },
-        (blob) => {
-          downloadPdf(blob);
         },
         () => toast.error('Erro ao exportar o relatório.'),
       ),
